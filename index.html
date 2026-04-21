@@ -591,14 +591,14 @@
 <div class="qr-modal-overlay" id="qrOverlay">
   <div class="qr-modal">
     <h2>Share this menu</h2>
-    <p>Customers scan this QR code to open the ordering page. Host this file online to make it work.</p>
-    <canvas id="qrCanvas" width="200" height="200"></canvas>
+    <p>Customers scan this QR code to open the ordering page on their phone.</p>
+    <img id="qrImg" src="" alt="QR Code" style="width:200px;height:200px;border-radius:10px;background:#fff;padding:10px;display:block;margin:0 auto 16px;" />
     <div class="qr-url" id="qrUrl" onclick="copyUrl()">Tap to copy URL</div>
     <button class="qr-close" onclick="closeQR()">Done</button>
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
 <script>
 const MENU = [
   { name:"Latte",        price:4.50, category:"Drink",     emoji:"☕" },
@@ -810,33 +810,17 @@ function backToMenu() {
   renderMenu();
 }
 
-// QR Code
+// QR Code — uses Google Charts API (just an img tag, works when online)
 let qrGenerated = false;
 function openQR() {
   document.getElementById("qrOverlay").classList.add("open");
   if (!qrGenerated) {
     const url = window.location.href;
     document.getElementById("qrUrl").textContent = url;
-    try {
-      new QRCode(document.getElementById("qrCanvas"), {
-        text: url,
-        width: 200,
-        height: 200,
-        colorDark: "#1A1410",
-        colorLight: "#FFFFFF",
-        correctLevel: QRCode.CorrectLevel.M
-      });
-      qrGenerated = true;
-    } catch(e) {
-      const ctx = document.getElementById("qrCanvas").getContext("2d");
-      ctx.fillStyle = "#f0ede8";
-      ctx.fillRect(0,0,200,200);
-      ctx.fillStyle = "#6B4226";
-      ctx.font = "13px DM Sans, sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText("Deploy online to generate", 100, 90);
-      ctx.fillText("a scannable QR code", 100, 110);
-    }
+    const encoded = encodeURIComponent(url);
+    document.getElementById("qrImg").src =
+      "https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=" + encoded + "&choe=UTF-8&chld=M|1";
+    qrGenerated = true;
   }
 }
 function closeQR() {
