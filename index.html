@@ -1,531 +1,92 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>NEU Silicon Valley Café</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --cream: #FAF7F2;
-    --dark: #1A1410;
-    --brown: #6B4226;
-    --gold: #C8963E;
-    --gold-light: #F5E6C8;
-    --rust: #C0471B;
-    --muted: #8C7B6B;
-    --border: rgba(107,66,38,0.15);
-    --card: #FFFFFF;
-    --success: #2D6A4F;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--cream);
-    color: var(--dark);
-    min-height: 100vh;
-    padding-bottom: 100px;
-  }
-
-  /* ── Header ── */
-  .header {
-    background: var(--dark);
-    color: var(--cream);
-    padding: 20px 20px 16px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .header-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-  }
-  .header-name {
-    font-family: 'DM Serif Display', serif;
-    font-size: 22px;
-    line-height: 1.2;
-    letter-spacing: -0.01em;
-  }
-  .header-sub {
-    font-size: 11px;
-    color: rgba(250,247,242,0.5);
-    margin-top: 3px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-  .cart-btn {
-    background: var(--gold);
-    color: var(--dark);
-    border: none;
-    border-radius: 99px;
-    padding: 8px 16px 8px 12px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: background 0.15s;
-  }
-  .cart-btn:hover { background: #d9a845; }
-  .cart-badge {
-    background: var(--rust);
-    color: #fff;
-    border-radius: 99px;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 5px;
-    font-size: 11px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* ── Special Banner ── */
-  .special-banner {
-    background: var(--gold-light);
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border-bottom: 1px solid rgba(200,150,62,0.3);
-  }
-  .special-pill {
-    background: var(--gold);
-    color: var(--dark);
-    font-size: 10px;
-    font-weight: 500;
-    padding: 3px 9px;
-    border-radius: 99px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-  .special-text {
-    font-size: 13px;
-    color: var(--brown);
-  }
-  .special-text strong { font-weight: 500; }
-
-  /* ── Category Nav ── */
-  .cat-nav {
-    background: var(--cream);
-    padding: 12px 16px;
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 72px;
-    z-index: 90;
-  }
-  .cat-nav::-webkit-scrollbar { display: none; }
-  .cat-pill {
-    border: 1px solid var(--border);
-    background: transparent;
-    border-radius: 99px;
-    padding: 6px 16px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    color: var(--muted);
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.15s;
-  }
-  .cat-pill.active {
-    background: var(--dark);
-    border-color: var(--dark);
-    color: var(--cream);
-  }
-
-  /* ── Menu ── */
-  .menu-wrap { padding: 20px 16px 0; }
-  .section-label {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-    padding-left: 2px;
-  }
-  .items-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 10px;
-    margin-bottom: 28px;
-  }
-
-  .item-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 16px 12px 12px;
-    position: relative;
-    transition: transform 0.15s, box-shadow 0.15s;
-  }
-  .item-card:not(.out-of-stock):hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(107,66,38,0.12);
-  }
-  .item-card.out-of-stock { opacity: 0.5; }
-
-  .item-emoji { font-size: 30px; margin-bottom: 10px; line-height: 1; }
-  .item-name { font-size: 14px; font-weight: 500; color: var(--dark); line-height: 1.3; margin-bottom: 4px; }
-  .item-price { font-size: 13px; color: var(--muted); }
-  .item-price.is-special { color: var(--rust); }
-  .orig-price { text-decoration: line-through; color: var(--muted); font-size: 11px; margin-right: 3px; }
-
-  .item-badge {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    font-size: 10px;
-    font-weight: 500;
-    padding: 2px 8px;
-    border-radius: 99px;
-    letter-spacing: 0.04em;
-  }
-  .badge-sold { background: #F7C1C1; color: #7A2020; }
-  .badge-special { background: var(--gold-light); color: var(--brown); }
-
-  .add-btn {
-    margin-top: 12px;
-    width: 100%;
-    background: var(--gold-light);
-    color: var(--brown);
-    border: none;
-    border-radius: 8px;
-    padding: 7px 0;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .add-btn:hover:not(:disabled) { background: #edd89e; }
-  .add-btn:disabled {
-    background: #f0ede8;
-    color: var(--muted);
-    cursor: not-allowed;
-  }
-
-  /* ── Toast ── */
-  .toast {
-    position: fixed;
-    bottom: 110px;
-    left: 50%;
-    transform: translateX(-50%) translateY(10px);
-    background: var(--dark);
-    color: var(--cream);
-    padding: 9px 20px;
-    border-radius: 99px;
-    font-size: 13px;
-    opacity: 0;
-    transition: opacity 0.2s, transform 0.2s;
-    z-index: 400;
-    pointer-events: none;
-    white-space: nowrap;
-  }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  /* ── Cart Panel ── */
-  .overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(26,20,16,0.5);
-    z-index: 200;
-    backdrop-filter: blur(2px);
-  }
-  .overlay.open { display: block; }
-
-  .cart-panel {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: var(--cream);
-    border-radius: 20px 20px 0 0;
-    max-height: 82vh;
-    overflow-y: auto;
-    z-index: 201;
-    transform: translateY(100%);
-    transition: transform 0.28s cubic-bezier(0.32,0.72,0,1);
-  }
-  .cart-panel.open { transform: translateY(0); }
-
-  .cart-handle {
-    width: 36px;
-    height: 4px;
-    background: var(--border);
-    border-radius: 99px;
-    margin: 12px auto 0;
-  }
-  .cart-head {
-    padding: 14px 20px 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    background: var(--cream);
-    z-index: 1;
-  }
-  .cart-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 20px;
-  }
-  .close-btn {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 99px;
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-    font-size: 14px;
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .cart-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 20px;
-    border-bottom: 1px solid var(--border);
-  }
-  .ci-emoji { font-size: 24px; }
-  .ci-info { flex: 1; }
-  .ci-name { font-size: 14px; font-weight: 500; }
-  .ci-price { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .qty-row { display: flex; align-items: center; gap: 10px; }
-  .qty-btn {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 99px;
-    width: 28px; height: 28px;
-    cursor: pointer;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--dark);
-    font-family: 'DM Sans', sans-serif;
-    transition: background 0.1s;
-  }
-  .qty-btn:hover { background: var(--gold-light); }
-  .qty-n { font-size: 14px; font-weight: 500; min-width: 16px; text-align: center; }
-
-  .cart-empty { padding: 40px 20px; text-align: center; color: var(--muted); }
-  .cart-empty-icon { font-size: 36px; margin-bottom: 10px; }
-
-  .cart-foot {
-    padding: 16px 20px 24px;
-    border-top: 1px solid var(--border);
-    position: sticky;
-    bottom: 0;
-    background: var(--cream);
-  }
-  .total-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 14px;
-  }
-  .total-label { font-size: 14px; color: var(--muted); }
-  .total-num {
-    font-family: 'DM Serif Display', serif;
-    font-size: 24px;
-    color: var(--dark);
-  }
-  .checkout-btn {
-    width: 100%;
-    background: var(--dark);
-    color: var(--cream);
-    border: none;
-    border-radius: 12px;
-    padding: 16px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    letter-spacing: 0.02em;
-    transition: background 0.15s;
-  }
-  .checkout-btn:hover { background: var(--brown); }
-
-  /* ── Success Screen ── */
-  .success-screen {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: var(--cream);
-    z-index: 300;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 32px 24px;
-    text-align: center;
-  }
-  .success-screen.show { display: flex; }
-  .success-ring {
-    width: 80px; height: 80px;
-    background: #D8F0E5;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 36px;
-    margin-bottom: 20px;
-  }
-  .success-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 28px;
-    margin-bottom: 8px;
-  }
-  .success-order {
-    font-size: 13px;
-    color: var(--muted);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-bottom: 16px;
-  }
-  .success-items {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 16px 20px;
-    width: 100%;
-    max-width: 340px;
-    margin-bottom: 20px;
-  }
-  .success-line {
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-    padding: 4px 0;
-    color: var(--dark);
-  }
-  .success-total-line {
-    display: flex;
-    justify-content: space-between;
-    padding-top: 10px;
-    margin-top: 6px;
-    border-top: 1px solid var(--border);
-    font-weight: 500;
-    font-size: 15px;
-  }
-  .pickup-note {
-    font-size: 13px;
-    color: var(--muted);
-    margin-bottom: 24px;
-    line-height: 1.6;
-  }
-  .back-btn {
-    background: var(--gold-light);
-    color: var(--brown);
-    border: none;
-    border-radius: 12px;
-    padding: 14px 32px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-  }
-
-  /* ── QR Modal ── */
-  .qr-modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(26,20,16,0.6);
-    z-index: 500;
-    align-items: center;
-    justify-content: center;
-  }
-  .qr-modal-overlay.open { display: flex; }
-  .qr-modal {
-    background: var(--cream);
-    border-radius: 20px;
-    padding: 28px 24px;
-    max-width: 320px;
-    width: 90%;
-    text-align: center;
-  }
-  .qr-modal h2 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 20px;
-    margin-bottom: 6px;
-  }
-  .qr-modal p {
-    font-size: 13px;
-    color: var(--muted);
-    margin-bottom: 20px;
-    line-height: 1.6;
-  }
-  #qrCanvas {
-    border-radius: 10px;
-    background: #fff;
-    padding: 12px;
-    margin-bottom: 16px;
-  }
-  .qr-url {
-    font-size: 11px;
-    color: var(--muted);
-    word-break: break-all;
-    background: var(--gold-light);
-    padding: 8px 12px;
-    border-radius: 8px;
-    margin-bottom: 16px;
-    cursor: pointer;
-    user-select: all;
-  }
-  .qr-close {
-    background: var(--dark);
-    color: var(--cream);
-    border: none;
-    border-radius: 10px;
-    padding: 12px 28px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    cursor: pointer;
-    width: 100%;
-  }
-  .qr-fab {
-    position: fixed;
-    bottom: 24px;
-    right: 20px;
-    background: var(--dark);
-    color: var(--cream);
-    border: none;
-    border-radius: 99px;
-    padding: 10px 18px 10px 14px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    box-shadow: 0 4px 16px rgba(26,20,16,0.25);
-    z-index: 150;
-    transition: transform 0.15s;
-  }
-  .qr-fab:hover { transform: translateY(-2px); }
+:root{--cream:#FAF7F2;--dark:#1A1410;--brown:#6B4226;--gold:#C8963E;--gold-light:#F5E6C8;--rust:#C0471B;--muted:#8C7B6B;--border:rgba(107,66,38,0.15);--card:#fff;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--dark);min-height:100vh;padding-bottom:100px;}
+.header{background:var(--dark);color:var(--cream);padding:20px 20px 16px;position:sticky;top:0;z-index:100;}
+.header-top{display:flex;align-items:flex-start;justify-content:space-between;}
+.header-name{font-family:'DM Serif Display',serif;font-size:22px;line-height:1.2;}
+.header-sub{font-size:11px;color:rgba(250,247,242,0.5);margin-top:3px;letter-spacing:0.08em;text-transform:uppercase;}
+.cart-btn{background:var(--gold);color:var(--dark);border:none;border-radius:99px;padding:8px 16px 8px 12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.cart-badge{background:var(--rust);color:#fff;border-radius:99px;min-width:18px;height:18px;padding:0 5px;font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;}
+.special-banner{background:var(--gold-light);padding:10px 20px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(200,150,62,0.3);}
+.special-pill{background:var(--gold);color:var(--dark);font-size:10px;font-weight:500;padding:3px 9px;border-radius:99px;letter-spacing:0.05em;text-transform:uppercase;white-space:nowrap;}
+.special-text{font-size:13px;color:var(--brown);}
+.cat-nav{background:var(--cream);padding:12px 16px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border);position:sticky;top:72px;z-index:90;}
+.cat-nav::-webkit-scrollbar{display:none;}
+.cat-pill{border:1px solid var(--border);background:transparent;border-radius:99px;padding:6px 16px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all 0.15s;}
+.cat-pill.active{background:var(--dark);border-color:var(--dark);color:var(--cream);}
+.menu-wrap{padding:20px 16px 0;}
+.section-label{font-size:11px;font-weight:500;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;padding-left:2px;}
+.items-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:28px;}
+.item-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 12px 12px;position:relative;transition:transform 0.15s,box-shadow 0.15s;}
+.item-card:not(.oos):hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(107,66,38,0.12);}
+.item-card.oos{opacity:0.5;}
+.item-emoji{font-size:30px;margin-bottom:10px;line-height:1;}
+.item-name{font-size:14px;font-weight:500;color:var(--dark);line-height:1.3;margin-bottom:4px;}
+.item-price{font-size:13px;color:var(--muted);}
+.item-price.sp{color:var(--rust);}
+.orig{text-decoration:line-through;color:var(--muted);font-size:11px;margin-right:3px;}
+.ibadge{position:absolute;top:8px;right:8px;font-size:10px;font-weight:500;padding:2px 8px;border-radius:99px;}
+.bsold{background:#F7C1C1;color:#7A2020;}
+.bspec{background:var(--gold-light);color:var(--brown);}
+.add-btn{margin-top:12px;width:100%;background:var(--gold-light);color:var(--brown);border:none;border-radius:8px;padding:7px 0;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:background 0.15s;}
+.add-btn:hover:not(:disabled){background:#edd89e;}
+.add-btn:disabled{background:#f0ede8;color:var(--muted);cursor:not-allowed;}
+.toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--dark);color:var(--cream);padding:9px 20px;border-radius:99px;font-size:13px;opacity:0;transition:opacity 0.2s,transform 0.2s;z-index:400;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.overlay{display:none;position:fixed;inset:0;background:rgba(26,20,16,0.5);z-index:200;backdrop-filter:blur(2px);}
+.overlay.open{display:block;}
+.cart-panel{position:fixed;bottom:0;left:0;right:0;background:var(--cream);border-radius:20px 20px 0 0;max-height:82vh;overflow-y:auto;z-index:201;transform:translateY(100%);transition:transform 0.28s cubic-bezier(0.32,0.72,0,1);}
+.cart-panel.open{transform:translateY(0);}
+.cart-handle{width:36px;height:4px;background:var(--border);border-radius:99px;margin:12px auto 0;}
+.cart-head{padding:14px 20px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--cream);z-index:1;}
+.cart-title{font-family:'DM Serif Display',serif;font-size:20px;}
+.close-btn{background:none;border:1px solid var(--border);border-radius:99px;width:30px;height:30px;cursor:pointer;font-size:14px;color:var(--muted);display:flex;align-items:center;justify-content:center;}
+.cart-item{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);}
+.ci-emoji{font-size:24px;}
+.ci-info{flex:1;}
+.ci-name{font-size:14px;font-weight:500;}
+.ci-price{font-size:12px;color:var(--muted);margin-top:2px;}
+.qty-row{display:flex;align-items:center;gap:10px;}
+.qty-btn{background:none;border:1px solid var(--border);border-radius:99px;width:28px;height:28px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--dark);font-family:'DM Sans',sans-serif;}
+.qty-n{font-size:14px;font-weight:500;min-width:16px;text-align:center;}
+.cart-empty{padding:40px 20px;text-align:center;color:var(--muted);}
+.cart-foot{padding:16px 20px 24px;border-top:1px solid var(--border);}
+.total-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;}
+.total-label{font-size:14px;color:var(--muted);}
+.total-num{font-family:'DM Serif Display',serif;font-size:24px;color:var(--dark);}
+.checkout-btn{width:100%;background:var(--dark);color:var(--cream);border:none;border-radius:12px;padding:16px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;}
+.success-screen{display:none;position:fixed;inset:0;background:var(--cream);z-index:300;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center;}
+.success-screen.show{display:flex;}
+.success-ring{width:80px;height:80px;background:#D8F0E5;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:20px;}
+.success-title{font-family:'DM Serif Display',serif;font-size:28px;margin-bottom:8px;}
+.success-order{font-size:13px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:16px;}
+.success-items{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 20px;width:100%;max-width:340px;margin-bottom:20px;}
+.success-line{display:flex;justify-content:space-between;font-size:14px;padding:4px 0;}
+.success-total-line{display:flex;justify-content:space-between;padding-top:10px;margin-top:6px;border-top:1px solid var(--border);font-weight:500;font-size:15px;}
+.pickup-note{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6;}
+.back-btn{background:var(--gold-light);color:var(--brown);border:none;border-radius:12px;padding:14px 32px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;}
+/* QR Modal */
+.qr-overlay{display:none;position:fixed;inset:0;background:rgba(26,20,16,0.6);z-index:500;align-items:center;justify-content:center;}
+.qr-overlay.open{display:flex;}
+.qr-box{background:var(--cream);border-radius:20px;padding:28px 24px;max-width:320px;width:90%;text-align:center;}
+.qr-box h2{font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:6px;}
+.qr-box p{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;}
+#qrCanvas{display:block;margin:0 auto 16px;border-radius:10px;background:#fff;}
+.qr-url-box{font-size:11px;color:var(--muted);word-break:break-all;background:var(--gold-light);padding:8px 12px;border-radius:8px;margin-bottom:16px;cursor:pointer;user-select:all;}
+.qr-done{background:var(--dark);color:var(--cream);border:none;border-radius:10px;padding:12px 28px;font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;width:100%;}
+.qr-fab{position:fixed;bottom:24px;right:20px;background:var(--dark);color:var(--cream);border:none;border-radius:99px;padding:10px 18px 10px 14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 16px rgba(26,20,16,0.25);z-index:150;}
 </style>
 </head>
 <body>
 
-<!-- Header -->
 <div class="header">
   <div class="header-top">
     <div>
@@ -533,33 +94,23 @@
       <div class="header-sub">Scan · Order · Pick up at counter</div>
     </div>
     <button class="cart-btn" onclick="openCart()">
-      <span>🛒</span>
-      <span id="cartCount" class="cart-badge">0</span>
+      🛒 <span id="cartCount" class="cart-badge">0</span>
     </button>
   </div>
 </div>
 
-<!-- Special Banner -->
-<div class="special-banner" id="specialBanner">
+<div class="special-banner">
   <span class="special-pill">Today's special</span>
   <span class="special-text"><strong id="specialName">—</strong> · 20% off today only</span>
 </div>
 
-<!-- Category Nav -->
 <div class="cat-nav" id="catNav"></div>
-
-<!-- Menu -->
 <div class="menu-wrap" id="menuWrap"></div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<!-- QR FAB -->
-<button class="qr-fab" onclick="openQR()">
-  <span style="font-size:16px;">⬡</span> Share QR
-</button>
+<button class="qr-fab" onclick="openQR()">⬡ Share QR</button>
 
-<!-- Cart Overlay + Panel -->
 <div class="overlay" id="overlay" onclick="closeCart()"></div>
 <div class="cart-panel" id="cartPanel">
   <div class="cart-handle"></div>
@@ -577,420 +128,320 @@
   </div>
 </div>
 
-<!-- Success Screen -->
 <div class="success-screen" id="successScreen">
   <div class="success-ring">✓</div>
   <div class="success-title">Order placed!</div>
   <div class="success-order" id="orderNum">Order #000</div>
   <div class="success-items" id="successItems"></div>
-  <div class="pickup-note">Please show this screen at the counter.<br>Your order will be ready shortly.</div>
+  <div class="pickup-note">Show this screen at the counter.<br>Your order will be ready shortly.</div>
   <button class="back-btn" onclick="backToMenu()">Order again</button>
 </div>
 
-<!-- QR Modal -->
-<div class="qr-modal-overlay" id="qrOverlay">
-  <div class="qr-modal">
+<div class="qr-overlay" id="qrOverlay">
+  <div class="qr-box">
     <h2>Share this menu</h2>
     <p>Customers scan this QR code to open the ordering page on their phone.</p>
-    <canvas id="qrCanvas" style="display:block;margin:0 auto 16px;border-radius:10px;"></canvas>
-    <div class="qr-url" id="qrUrl" onclick="copyUrl()">Tap to copy URL</div>
-    <button class="qr-close" onclick="closeQR()">Done</button>
+    <canvas id="qrCanvas"></canvas>
+    <div class="qr-url-box" id="qrUrl" onclick="copyUrl()">tap to copy URL</div>
+    <button class="qr-done" onclick="closeQR()">Done</button>
   </div>
 </div>
 
-
 <script>
-const MENU = [
-  { name:"Latte",        price:4.50, category:"Drink",     emoji:"☕" },
-  { name:"Espresso",     price:3.00, category:"Drink",     emoji:"☕" },
-  { name:"Green Tea",    price:3.50, category:"Drink",     emoji:"🍵" },
-  { name:"Orange Juice", price:4.00, category:"Drink",     emoji:"🍊" },
-  { name:"Croissant",    price:3.25, category:"Food",      emoji:"🥐" },
-  { name:"Bagel",        price:2.75, category:"Food",      emoji:"🥯" },
-  { name:"Sandwich",     price:6.50, category:"Food",      emoji:"🥪" },
-  { name:"Muffin",       price:3.25, category:"Dessert",   emoji:"🧁" },
-  { name:"Brownie",      price:3.00, category:"Dessert",   emoji:"🍫" },
-  { name:"Cookie",       price:2.50, category:"Dessert",   emoji:"🍪" },
-  { name:"Chips",        price:2.00, category:"Grab & Go", emoji:"🍟" },
-  { name:"Popcorn",      price:2.50, category:"Grab & Go", emoji:"🍿" },
-  { name:"Granola Bar",  price:2.00, category:"Grab & Go", emoji:"🌾" },
-  { name:"Coke",         price:2.00, category:"Grab & Go", emoji:"🥤" },
-  { name:"Bottled Water",price:1.50, category:"Grab & Go", emoji:"💧" },
+// ═══════════════════════════════════════════════════
+//  QR CODE GENERATOR  (fully self-contained, no CDN)
+// ═══════════════════════════════════════════════════
+var QRMaker = (function(){
+  // GF(256) tables
+  var EXP = new Uint8Array(512), LOG = new Uint8Array(256);
+  (function(){var x=1;for(var i=0;i<255;i++){EXP[i]=x;LOG[x]=i;x=(x<<1)^(x&128?285:0)&255;}for(var i=255;i<512;i++)EXP[i]=EXP[i-255];})();
+  var mul=function(a,b){return a&&b?EXP[LOG[a]+LOG[b]]:0;};
+
+  // Generator polynomial for n EC codewords
+  function genPoly(n){
+    var p=[1];
+    for(var i=0;i<n;i++){
+      var q=new Uint8Array(p.length+1);
+      for(var j=0;j<p.length;j++){q[j]^=mul(p[j],EXP[i]);q[j+1]^=p[j];}
+      p=q;
+    }
+    return p;
+  }
+
+  // Divide data by generator, return remainder (EC bytes)
+  function polyRemainder(data,gen){
+    var d=new Uint8Array(data.length+gen.length-1);
+    for(var i=0;i<data.length;i++)d[i]=data[i];
+    for(var i=0;i<data.length;i++){
+      var c=d[i];if(!c)continue;
+      for(var j=0;j<gen.length;j++)d[i+j]^=mul(gen[j],c);
+    }
+    return d.slice(data.length);
+  }
+
+  // Version/EC params (M level): [version, size, dataBytes, ecBytes]
+  var PARAMS=[
+    [1,21,16,10],[2,25,28,16],[3,29,44,26],[4,33,64,36],
+    [5,37,86,48],[6,41,108,64],[7,45,124,72],[10,57,172,104]
+  ];
+
+  function draw(canvasId, text, cellPx){
+    cellPx = cellPx || 4;
+    // encode as bytes
+    var bytes=[];for(var i=0;i<text.length;i++)bytes.push(text.charCodeAt(i)&255);
+    var n=bytes.length;
+
+    // pick version
+    var ver,SIZE,DATA,EC;
+    for(var i=0;i<PARAMS.length;i++){
+      if(n+3<=PARAMS[i][2]){ver=PARAMS[i][0];SIZE=PARAMS[i][1];DATA=PARAMS[i][2];EC=PARAMS[i][3];break;}
+    }
+    if(!ver){alert("URL too long for QR");return;}
+
+    // bit stream
+    var bits=[];
+    var pb=function(v,l){for(var i=l-1;i>=0;i--)bits.push((v>>i)&1);};
+    pb(4,4);pb(n,8);
+    for(var i=0;i<n;i++)pb(bytes[i],8);
+    pb(0,Math.min(4,DATA*8-bits.length));
+    while(bits.length%8)bits.push(0);
+    var pi=0,pads=[236,17];
+    while(bits.length<DATA*8){pb(pads[pi++%2],8);}
+    var cw=new Uint8Array(DATA);
+    for(var i=0;i<DATA;i++){for(var j=0;j<8;j++)cw[i]=(cw[i]<<1)|bits[i*8+j];}
+
+    // error correction
+    var gen=genPoly(EC);
+    var ec=polyRemainder(cw,gen);
+    var all=new Uint8Array(DATA+EC);
+    all.set(cw);all.set(ec,DATA);
+
+    // final bit stream
+    var fb=[];
+    for(var i=0;i<all.length;i++)for(var j=7;j>=0;j--)fb.push((all[i]>>j)&1);
+    // remainder bits
+    var REM=[0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4];
+    for(var i=0;i<REM[ver];i++)fb.push(0);
+
+    // module grid
+    var S=SIZE;
+    var grid=new Uint8Array(S*S);
+    var func=new Uint8Array(S*S);
+    var set=function(r,c,v){grid[r*S+c]=v;func[r*S+c]=1;};
+    var isF=function(r,c){return func[r*S+c];};
+
+    // finder pattern at (tr,tc)
+    var finder=function(tr,tc){
+      var P=[[1,1,1,1,1,1,1],[1,0,0,0,0,0,1],[1,0,1,1,1,0,1],[1,0,1,1,1,0,1],[1,0,1,1,1,0,1],[1,0,0,0,0,0,1],[1,1,1,1,1,1,1]];
+      for(var dr=-1;dr<8;dr++)for(var dc=-1;dc<8;dc++){
+        var r2=tr+dr,c2=tc+dc;
+        if(r2<0||r2>=S||c2<0||c2>=S)continue;
+        set(r2,c2,dr>=0&&dr<7&&dc>=0&&dc<7?P[dr][dc]:0);
+      }
+    };
+    finder(0,0);finder(0,S-7);finder(S-7,0);
+
+    // timing strips
+    for(var i=8;i<S-8;i++){set(6,i,i%2?0:1);set(i,6,i%2?0:1);}
+    // dark module
+    set(S-8,8,1);
+
+    // alignment pattern centers for each version
+    var APOS={2:[6,18],3:[6,22],4:[6,26],5:[6,30],6:[6,34],7:[6,22,38],10:[6,28,46,64]};
+    var ap=APOS[ver];
+    if(ap)for(var ai=0;ai<ap.length;ai++)for(var aj=0;aj<ap.length;aj++){
+      var ar=ap[ai],ac=ap[aj];
+      if(isF(ar,ac))continue;
+      for(var dr=-2;dr<=2;dr++)for(var dc=-2;dc<=2;dc++)
+        set(ar+dr,ac+dc,Math.abs(dr)==2||Math.abs(dc)==2||(dr==0&&dc==0)?1:0);
+    }
+
+    // format info placeholders (will be overwritten)
+    var FP1=[[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[7,8],[8,8],[8,7],[8,5],[8,4],[8,3],[8,2],[8,1],[8,0]];
+    var FP2=[[S-1,8],[S-2,8],[S-3,8],[S-4,8],[S-5,8],[S-6,8],[S-7,8],[8,S-8],[8,S-7],[8,S-6],[8,S-5],[8,S-4],[8,S-3],[8,S-2],[8,S-1]];
+    for(var i=0;i<15;i++){func[FP1[i][0]*S+FP1[i][1]]=1;func[FP2[i][0]*S+FP2[i][1]]=1;}
+
+    // data placement (mask 0: (r+c)%2==0)
+    var bi=0,up=true,col=S-1;
+    while(col>0){
+      if(col==6)col--;
+      for(var row=0;row<S;row++){
+        var r=up?S-1-row:row;
+        for(var d=0;d<2;d++){
+          var c=col-d;
+          if(!isF(r,c)){
+            var bit=bi<fb.length?fb[bi++]:0;
+            if((r+c)%2==0)bit^=1; // mask 0
+            grid[r*S+c]=bit;
+          }
+        }
+      }
+      up=!up;col-=2;
+    }
+
+    // format info for EC=M(01), mask=0(000) -> format word = 01 000 = 8
+    // BCH(8) with poly x^10+x^8+x^5+x^4+x^2+x+1:
+    // 8 << 10 = 0x2000; remainder = ?
+    // Full precomputed format string for M+mask0: 110011000101111 XOR mask 101010000010010 = 011001000111101
+    var FMT=[0,1,1,0,0,1,0,0,0,1,1,1,1,0,1];
+    for(var i=0;i<15;i++){
+      grid[FP1[i][0]*S+FP1[i][1]]=FMT[i];
+      grid[FP2[i][0]*S+FP2[i][1]]=FMT[i];
+    }
+    // also set dark module back
+    set(S-8,8,1);
+
+    // draw
+    var QUIET=4;
+    var total=(S+QUIET*2)*cellPx;
+    var cv=document.getElementById(canvasId);
+    cv.width=total;cv.height=total;
+    var ctx=cv.getContext('2d');
+    ctx.fillStyle='#ffffff';ctx.fillRect(0,0,total,total);
+    ctx.fillStyle='#1A1410';
+    for(var r=0;r<S;r++)for(var c=0;c<S;c++)
+      if(grid[r*S+c])ctx.fillRect((c+QUIET)*cellPx,(r+QUIET)*cellPx,cellPx,cellPx);
+  }
+  return {draw:draw};
+})();
+
+// ═══════════════════════════════════════════════════
+//  CAFÉ APP
+// ═══════════════════════════════════════════════════
+var MENU=[
+  {name:"Latte",price:4.50,cat:"Drink",e:"☕"},
+  {name:"Espresso",price:3.00,cat:"Drink",e:"☕"},
+  {name:"Green Tea",price:3.50,cat:"Drink",e:"🍵"},
+  {name:"Orange Juice",price:4.00,cat:"Drink",e:"🍊"},
+  {name:"Croissant",price:3.25,cat:"Food",e:"🥐"},
+  {name:"Bagel",price:2.75,cat:"Food",e:"🥯"},
+  {name:"Sandwich",price:6.50,cat:"Food",e:"🥪"},
+  {name:"Muffin",price:3.25,cat:"Dessert",e:"🧁"},
+  {name:"Brownie",price:3.00,cat:"Dessert",e:"🍫"},
+  {name:"Cookie",price:2.50,cat:"Dessert",e:"🍪"},
+  {name:"Chips",price:2.00,cat:"Grab & Go",e:"🍟"},
+  {name:"Popcorn",price:2.50,cat:"Grab & Go",e:"🍿"},
+  {name:"Granola Bar",price:2.00,cat:"Grab & Go",e:"🌾"},
+  {name:"Coke",price:2.00,cat:"Grab & Go",e:"🥤"},
+  {name:"Bottled Water",price:1.50,cat:"Grab & Go",e:"💧"},
 ];
+var STOCK={Latte:5,Espresso:10,"Green Tea":8,"Orange Juice":6,Croissant:4,Bagel:7,Muffin:1,Sandwich:0,Brownie:6,Cookie:8,Chips:10,Popcorn:9,"Granola Bar":12,Coke:7,"Bottled Water":15};
+var stock=Object.assign({},STOCK);
+var cart={};
+var special=MENU[Math.floor(Math.random()*MENU.length)];
+var currentCat="All";
+var cats=["All"];
+MENU.forEach(function(i){if(cats.indexOf(i.cat)<0)cats.push(i.cat);});
+document.getElementById("specialName").textContent=special.name;
 
-const INIT_STOCK = {
-  "Latte":5,"Espresso":10,"Green Tea":8,"Orange Juice":6,
-  "Croissant":4,"Bagel":7,"Muffin":1,"Sandwich":0,
-  "Brownie":6,"Cookie":8,"Chips":10,"Popcorn":9,
-  "Granola Bar":12,"Coke":7,"Bottled Water":15
-};
-
-let stock = {...INIT_STOCK};
-let cart = {};
-let special = MENU[Math.floor(Math.random() * MENU.length)];
-let currentCat = "All";
-const cats = ["All", ...new Set(MENU.map(i => i.category))];
-
-document.getElementById("specialName").textContent = special.name;
-
-// Build category nav
-const catNav = document.getElementById("catNav");
-cats.forEach(c => {
-  const btn = document.createElement("button");
-  btn.className = "cat-pill" + (c === "All" ? " active" : "");
-  btn.textContent = c;
-  btn.onclick = () => {
-    currentCat = c;
-    document.querySelectorAll(".cat-pill").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    renderMenu();
-  };
+var catNav=document.getElementById("catNav");
+cats.forEach(function(c){
+  var btn=document.createElement("button");
+  btn.className="cat-pill"+(c==="All"?" active":"");
+  btn.textContent=c;
+  btn.onclick=function(){currentCat=c;document.querySelectorAll(".cat-pill").forEach(function(b){b.classList.remove("active");});btn.classList.add("active");renderMenu();};
   catNav.appendChild(btn);
 });
 
-function renderMenu() {
-  const wrap = document.getElementById("menuWrap");
-  wrap.innerHTML = "";
-  const sections = currentCat === "All" ? [...new Set(MENU.map(i => i.category))] : [currentCat];
-
-  sections.forEach(cat => {
-    const items = MENU.filter(i => i.category === cat);
-    const label = document.createElement("div");
-    label.className = "section-label";
-    label.textContent = cat;
-    wrap.appendChild(label);
-
-    const grid = document.createElement("div");
-    grid.className = "items-grid";
-
-    items.forEach(item => {
-      const inStock = (stock[item.name] || 0) > 0;
-      const isSpec = item.name === special.name;
-      const dispPrice = isSpec ? item.price * 0.8 : item.price;
-
-      const card = document.createElement("div");
-      card.className = "item-card" + (!inStock ? " out-of-stock" : "");
-      card.innerHTML = `
-        ${!inStock ? '<span class="item-badge badge-sold">Sold out</span>' : isSpec ? '<span class="item-badge badge-special">20% off</span>' : ''}
-        <div class="item-emoji">${item.emoji}</div>
-        <div class="item-name">${item.name}</div>
-        <div class="item-price${isSpec ? ' is-special' : ''}">
-          ${isSpec ? `<span class="orig-price">$${item.price.toFixed(2)}</span>` : ''}
-          $${dispPrice.toFixed(2)}
-        </div>
-        <button class="add-btn" ${!inStock ? 'disabled' : ''} onclick="addToCart('${item.name}')">
-          ${inStock ? '+ Add to order' : 'Unavailable'}
-        </button>
-      `;
+function renderMenu(){
+  var wrap=document.getElementById("menuWrap");wrap.innerHTML="";
+  var sections=currentCat==="All"?cats.slice(1):[currentCat];
+  sections.forEach(function(cat){
+    var items=MENU.filter(function(i){return i.cat===cat;});
+    var lbl=document.createElement("div");lbl.className="section-label";lbl.textContent=cat;wrap.appendChild(lbl);
+    var grid=document.createElement("div");grid.className="items-grid";
+    items.forEach(function(item){
+      var inStock=(stock[item.name]||0)>0;
+      var isSp=item.name===special.name;
+      var dp=isSp?item.price*0.8:item.price;
+      var card=document.createElement("div");
+      card.className="item-card"+(inStock?"":" oos");
+      card.innerHTML=
+        (!inStock?'<span class="ibadge bsold">Sold out</span>':isSp?'<span class="ibadge bspec">20% off</span>':'')+
+        '<div class="item-emoji">'+item.e+'</div>'+
+        '<div class="item-name">'+item.name+'</div>'+
+        '<div class="item-price'+(isSp?" sp":"")+'">'+
+        (isSp?'<span class="orig">$'+item.price.toFixed(2)+'</span>':'')+
+        '$'+dp.toFixed(2)+'</div>'+
+        '<button class="add-btn"'+(inStock?'':' disabled')+' onclick="addItem(\''+item.name+'\')">'+
+        (inStock?'+ Add to order':'Unavailable')+'</button>';
       grid.appendChild(card);
     });
-
     wrap.appendChild(grid);
   });
 }
 
-function addToCart(name) {
-  if ((stock[name] || 0) <= 0) return;
-  cart[name] = (cart[name] || 0) + 1;
-  stock[name]--;
-  updateBadge();
-  renderMenu();
-  showToast("Added: " + name);
+function addItem(name){
+  if((stock[name]||0)<=0)return;
+  cart[name]=(cart[name]||0)+1;stock[name]--;
+  badge();renderMenu();toast("Added: "+name);
 }
+function badge(){var n=Object.values(cart).reduce(function(a,b){return a+b;},0);document.getElementById("cartCount").textContent=n;}
 
-function updateBadge() {
-  const n = Object.values(cart).reduce((a,b) => a+b, 0);
-  document.getElementById("cartCount").textContent = n;
-}
+var _tt;
+function toast(msg){var t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(_tt);_tt=setTimeout(function(){t.classList.remove("show");},1800);}
 
-let toastTimer;
-function showToast(msg) {
-  const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove("show"), 1800);
-}
+function openCart(){document.getElementById("overlay").classList.add("open");document.getElementById("cartPanel").classList.add("open");renderCart();}
+function closeCart(){document.getElementById("overlay").classList.remove("open");document.getElementById("cartPanel").classList.remove("open");}
 
-function openCart() {
-  document.getElementById("overlay").classList.add("open");
-  document.getElementById("cartPanel").classList.add("open");
-  renderCart();
-}
-function closeCart() {
-  document.getElementById("overlay").classList.remove("open");
-  document.getElementById("cartPanel").classList.remove("open");
-}
-
-function renderCart() {
-  const body = document.getElementById("cartBody");
-  const foot = document.getElementById("cartFoot");
-  body.innerHTML = "";
-
-  const keys = Object.keys(cart).filter(k => cart[k] > 0);
-  if (!keys.length) {
-    body.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛒</div>Your cart is empty</div>`;
-    foot.style.display = "none";
-    return;
-  }
-
-  let total = 0;
-  keys.forEach(name => {
-    const item = MENU.find(i => i.name === name);
-    const qty = cart[name];
-    const isSpec = name === special.name;
-    const up = isSpec ? item.price * 0.8 : item.price;
-    const sub = up * qty;
-    total += sub;
-
-    const row = document.createElement("div");
-    row.className = "cart-item";
-    row.innerHTML = `
-      <span class="ci-emoji">${item.emoji}</span>
-      <div class="ci-info">
-        <div class="ci-name">${name}${isSpec ? ' <span style="font-size:10px;background:#F5E6C8;color:#6B4226;padding:1px 6px;border-radius:99px;">20% off</span>' : ''}</div>
-        <div class="ci-price">$${up.toFixed(2)} · subtotal $${sub.toFixed(2)}</div>
-      </div>
-      <div class="qty-row">
-        <button class="qty-btn" onclick="adjustQty('${name}',-1)">−</button>
-        <span class="qty-n">${qty}</span>
-        <button class="qty-btn" onclick="adjustQty('${name}',1)">+</button>
-      </div>
-    `;
+function renderCart(){
+  var body=document.getElementById("cartBody"),foot=document.getElementById("cartFoot");
+  body.innerHTML="";
+  var keys=Object.keys(cart).filter(function(k){return cart[k]>0;});
+  if(!keys.length){body.innerHTML='<div class="cart-empty">🛒<br>Your cart is empty</div>';foot.style.display="none";return;}
+  var total=0;
+  keys.forEach(function(name){
+    var item=MENU.find(function(i){return i.name===name;});
+    var qty=cart[name],isSp=name===special.name;
+    var up=isSp?item.price*0.8:item.price,sub=up*qty;total+=sub;
+    var row=document.createElement("div");row.className="cart-item";
+    row.innerHTML='<span class="ci-emoji">'+item.e+'</span>'+
+      '<div class="ci-info"><div class="ci-name">'+name+'</div><div class="ci-price">$'+up.toFixed(2)+' each · $'+sub.toFixed(2)+'</div></div>'+
+      '<div class="qty-row"><button class="qty-btn" onclick="adj(\''+name+'\',-1)">−</button><span class="qty-n">'+qty+'</span><button class="qty-btn" onclick="adj(\''+name+'\',1)">+</button></div>';
     body.appendChild(row);
   });
-
-  document.getElementById("cartTotal").textContent = "$" + total.toFixed(2);
-  foot.style.display = "block";
+  document.getElementById("cartTotal").textContent="$"+total.toFixed(2);
+  foot.style.display="block";
 }
 
-function adjustQty(name, d) {
-  if (d > 0) {
-    if ((stock[name] || 0) <= 0) { showToast("No more stock!"); return; }
-    cart[name]++; stock[name]--;
-  } else {
-    if (!cart[name]) return;
-    cart[name]--; stock[name]++;
-    if (cart[name] === 0) delete cart[name];
-  }
-  updateBadge();
-  renderCart();
-  renderMenu();
+function adj(name,d){
+  if(d>0){if((stock[name]||0)<=0){toast("No more stock!");return;}cart[name]++;stock[name]--;}
+  else{if(!cart[name])return;cart[name]--;stock[name]++;if(!cart[name])delete cart[name];}
+  badge();renderCart();renderMenu();
 }
 
-function checkout() {
-  const keys = Object.keys(cart).filter(k => cart[k] > 0);
-  if (!keys.length) return;
-
-  let total = 0;
-  let linesHtml = "";
-  keys.forEach(name => {
-    const item = MENU.find(i => i.name === name);
-    const qty = cart[name];
-    const isSpec = name === special.name;
-    const up = isSpec ? item.price * 0.8 : item.price;
-    const sub = up * qty;
-    total += sub;
-    linesHtml += `<div class="success-line"><span>${item.emoji} ${name} × ${qty}</span><span>$${sub.toFixed(2)}</span></div>`;
+function checkout(){
+  var keys=Object.keys(cart).filter(function(k){return cart[k]>0;});if(!keys.length)return;
+  var total=0,html="";
+  keys.forEach(function(name){
+    var item=MENU.find(function(i){return i.name===name;});
+    var qty=cart[name],isSp=name===special.name,up=isSp?item.price*0.8:item.price,sub=up*qty;total+=sub;
+    html+='<div class="success-line"><span>'+item.e+' '+name+' × '+qty+'</span><span>$'+sub.toFixed(2)+'</span></div>';
   });
-  linesHtml += `<div class="success-total-line"><span>Total</span><span>$${total.toFixed(2)}</span></div>`;
-
-  const num = Math.floor(Math.random() * 900) + 100;
-  document.getElementById("orderNum").textContent = "Order #" + num;
-  document.getElementById("successItems").innerHTML = linesHtml;
-
-  cart = {};
-  updateBadge();
-  closeCart();
-  document.getElementById("successScreen").classList.add("show");
+  html+='<div class="success-total-line"><span>Total</span><span>$'+total.toFixed(2)+'</span></div>';
+  document.getElementById("orderNum").textContent="Order #"+(Math.floor(Math.random()*900)+100);
+  document.getElementById("successItems").innerHTML=html;
+  cart={};badge();closeCart();document.getElementById("successScreen").classList.add("show");
 }
 
-function backToMenu() {
-  document.getElementById("successScreen").classList.remove("show");
-  renderMenu();
-}
+function backToMenu(){document.getElementById("successScreen").classList.remove("show");renderMenu();}
 
-// ── Pure-JS QR Code (no external dependencies) ──────────────────
-// Uses qrcode-generator logic embedded inline
-(function(){
-  // Galois field
-  var QR_EXPTBL=[], QR_LOGTBL=[];
-  (function(){var a=1;for(var i=0;i<256;i++){QR_EXPTBL[i]=a;a<<=1;if(a&256)a^=285;a&=255;}for(var i=0;i<255;i++)QR_LOGTBL[QR_EXPTBL[i]]=i;})();
-  function gfMul(a,b){if(a===0||b===0)return 0;return QR_EXPTBL[(QR_LOGTBL[a]+QR_LOGTBL[b])%255];}
-
-  // Reed-Solomon error correction
-  function rsBlock(data, nEC){
-    var gen=[1];
-    for(var i=0;i<nEC;i++){
-      var ng=[1];
-      for(var j=0;j<gen.length;j++) ng.push(0);
-      for(var j=0;j<gen.length;j++)
-        for(var k=0;k<2;k++)
-          ng[j+(k===0?0:1)]^=gfMul(gen[j], k===0?QR_EXPTBL[i]:1);
-      gen=ng.slice(0,gen.length+1);
-      gen=gen.map(function(v,idx){return idx<gen.length-1?ng[idx]:v;});
-      // simpler: poly multiply
-    }
-    // proper poly multiply
-    gen=[1];
-    for(var i=0;i<nEC;i++){
-      var tmp=new Array(gen.length+1).fill(0);
-      for(var j=0;j<gen.length;j++){
-        tmp[j]^=gfMul(gen[j],QR_EXPTBL[i]);
-        tmp[j+1]^=gen[j];
-      }
-      gen=tmp;
-    }
-    gen.shift();
-    var d=data.slice();
-    for(var i=0;i<data.length;i++){
-      var c=d.shift();
-      if(c!==0) for(var j=0;j<gen.length;j++) d[j]^=gfMul(gen[j],c);
-    }
-    return d;
-  }
-
-  window.drawQR = function(canvasId, text, pixelSize){
-    pixelSize = pixelSize||4;
-    // Encode bytes
-    var bytes=[];
-    for(var i=0;i<text.length;i++) bytes.push(text.charCodeAt(i)&0xff);
-    var n=bytes.length;
-
-    // Choose version (1-Q supports up to 13 bytes, use version 2-M for more)
-    // Version 1: 21x21, M: 10 data + 10 ec codewords
-    // Version 2: 25x25, M: 16 data + 10 ec
-    // Version 3: 29x29, M: 26 data + 16 ec -- enough for typical URLs up to ~20 chars
-    // Version 5: 37x37, M: 36 data + 22 ec -- good for URLs up to ~30 chars
-    // Version 7: 45x45, M: 52 data + 30 ec
-    var VER, SIZE, DATA_CW, EC_CW;
-    if(n<=7){VER=1;SIZE=21;DATA_CW=10;EC_CW=10;}
-    else if(n<=14){VER=2;SIZE=25;DATA_CW=16;EC_CW=10;}
-    else if(n<=20){VER=3;SIZE=29;DATA_CW=26;EC_CW=16;}
-    else if(n<=32){VER=5;SIZE=37;DATA_CW=36;EC_CW=22;}
-    else if(n<=46){VER=7;SIZE=45;DATA_CW=52;EC_CW=30;}
-    else{VER=10;SIZE=57;DATA_CW=72;EC_CW=44;}
-
-    // Build bit stream
-    var bits=[];
-    var pb=function(v,l){for(var i=l-1;i>=0;i--)bits.push((v>>i)&1);};
-    pb(4,4); pb(n,8);
-    for(var i=0;i<n;i++) pb(bytes[i],8);
-    if(bits.length<DATA_CW*8) pb(0,Math.min(4,DATA_CW*8-bits.length));
-    while(bits.length%8) bits.push(0);
-    var pads=[236,17], pi=0;
-    while(bits.length<DATA_CW*8){for(var k=0;k<8;k++)bits.push((pads[pi%2]>>(7-k))&1);pi++;}
-
-    // To codewords
-    var cw=[];
-    for(var i=0;i<bits.length;i+=8){var b=0;for(var j=0;j<8;j++)b=(b<<1)|bits[i+j];cw.push(b);}
-
-    // EC
-    var ec=rsBlock(cw, EC_CW);
-    var all=cw.concat(ec);
-    var fbits=[];
-    for(var i=0;i<all.length;i++)for(var j=7;j>=0;j--)fbits.push((all[i]>>j)&1);
-
-    // Grid
-    var S=SIZE;
-    var grid=[], func=[];
-    for(var i=0;i<S;i++){grid[i]=new Uint8Array(S);func[i]=new Uint8Array(S);}
-
-    // Finder pattern
-    var fp=function(r,c){
-      var p=[[1,1,1,1,1,1,1],[1,0,0,0,0,0,1],[1,0,1,1,1,0,1],[1,0,1,1,1,0,1],[1,0,1,1,1,0,1],[1,0,0,0,0,0,1],[1,1,1,1,1,1,1]];
-      for(var dr=-1;dr<8;dr++)for(var dc=-1;dc<8;dc++){
-        var rr=r+dr,cc=c+dc;
-        if(rr<0||rr>=S||cc<0||cc>=S)continue;
-        func[rr][cc]=1;
-        if(dr>=0&&dr<7&&dc>=0&&dc<7)grid[rr][cc]=p[dr][dc];
-        else grid[rr][cc]=0;
-      }
-    };
-    fp(0,0);fp(0,S-7);fp(S-7,0);
-
-    // Timing
-    for(var i=8;i<S-8;i++){grid[6][i]=i%2===0?1:0;func[6][i]=1;grid[i][6]=i%2===0?1:0;func[i][6]=1;}
-
-    // Dark module
-    grid[S-8][8]=1;func[S-8][8]=1;
-
-    // Alignment (for version >= 2)
-    var ALN={2:[6,18],3:[6,22],5:[6,30],7:[6,22,38],10:[6,28,46]};
-    var apos=ALN[VER];
-    if(apos){
-      for(var ai=0;ai<apos.length;ai++)for(var aj=0;aj<apos.length;aj++){
-        var ar=apos[ai],ac=apos[aj];
-        if(func[ar][ac])continue;
-        for(var dr=-2;dr<=2;dr++)for(var dc=-2;dc<=2;dc++){
-          var rr=ar+dr,cc=ac+dc;
-          func[rr][cc]=1;
-          grid[rr][cc]=(Math.abs(dr)===2||Math.abs(dc)===2||dr===0&&dc===0)?1:0;
-        }
-      }
-    }
-
-    // Format info: mask 0, EC level M (binary: 01)
-    // format = EClevel(2bits) + mask(3bits) then BCH(10 bits), XOR 101010000010010
-    // EC M=0b01, mask=0b000 -> data=0b01000 = 8 -> BCH poly calc:
-    // Precomputed for M+mask0: 110011000101111 XOR 101010000010010 = 011001000111101
-    var FMT=[0,1,1,0,0,1,0,0,0,1,1,1,1,0,1];
-    var fmtPos1=[[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[7,8],[8,8],[8,7],[8,5],[8,4],[8,3],[8,2],[8,1],[8,0]];
-    var fmtPos2=[[S-1,8],[S-2,8],[S-3,8],[S-4,8],[S-5,8],[S-6,8],[S-7,8],[8,S-8],[8,S-7],[8,S-6],[8,S-5],[8,S-4],[8,S-3],[8,S-2],[8,S-1]];
-    for(var i=0;i<15;i++){
-      grid[fmtPos1[i][0]][fmtPos1[i][1]]=FMT[i];func[fmtPos1[i][0]][fmtPos1[i][1]]=1;
-      grid[fmtPos2[i][0]][fmtPos2[i][1]]=FMT[i];func[fmtPos2[i][0]][fmtPos2[i][1]]=1;
-    }
-
-    // Place data bits (zigzag, right to left, alternating up/down)
-    var bi=0, goUp=true, col=S-1;
-    while(col>0){
-      if(col===6)col--;
-      for(var row=0;row<S;row++){
-        var r2=goUp?S-1-row:row;
-        for(var d=0;d<2;d++){
-          var c2=col-d;
-          if(!func[r2][c2]){
-            var bit=bi<fbits.length?fbits[bi++]:0;
-            // mask 0: (row+col)%2==0
-            if((r2+c2)%2===0)bit^=1;
-            grid[r2][c2]=bit;
-          }
-        }
-      }
-      goUp=!goUp;col-=2;
-    }
-
-    // Draw on canvas
-    var cv=document.getElementById(canvasId);
-    var QUIET=4;
-    var total=(S+QUIET*2)*pixelSize;
-    cv.width=total;cv.height=total;
-    var ctx=cv.getContext('2d');
-    ctx.fillStyle='#fff';ctx.fillRect(0,0,total,total);
-    ctx.fillStyle='#1A1410';
-    for(var r=0;r<S;r++)for(var c=0;c<S;c++)
-      if(grid[r][c])ctx.fillRect((c+QUIET)*pixelSize,(r+QUIET)*pixelSize,pixelSize,pixelSize);
-  };
-})();
-
-// QR Code
-let qrGenerated = false;
-function openQR() {
+// QR
+var qrDone=false;
+function openQR(){
   document.getElementById("qrOverlay").classList.add("open");
-  if (!qrGenerated) {
-    const url = window.location.href;
-    document.getElementById("qrUrl").textContent = url;
-    try { drawQR("qrCanvas", url, 4); } catch(e){ console.error(e); }
-    qrGenerated = true;
+  if(!qrDone){
+    var url=window.location.href;
+    document.getElementById("qrUrl").textContent=url;
+    QRMaker.draw("qrCanvas",url,5);
+    qrDone=true;
   }
 }
-function closeQR() {
-  document.getElementById("qrOverlay").classList.remove("open");
-}
-function copyUrl() {
-  const url = window.location.href;
-  navigator.clipboard.writeText(url).then(() => showToast("URL copied!")).catch(() => showToast("Copy: " + url));
+function closeQR(){document.getElementById("qrOverlay").classList.remove("open");}
+function copyUrl(){
+  var u=window.location.href;
+  if(navigator.clipboard)navigator.clipboard.writeText(u).then(function(){toast("URL copied!");});
+  else{var t=document.createElement("textarea");t.value=u;document.body.appendChild(t);t.select();document.execCommand("copy");document.body.removeChild(t);toast("URL copied!");}
 }
 
 renderMenu();
