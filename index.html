@@ -592,7 +592,7 @@
   <div class="qr-modal">
     <h2>Share this menu</h2>
     <p>Customers scan this QR code to open the ordering page on their phone.</p>
-    <img id="qrImg" src="" alt="QR Code" style="width:200px;height:200px;border-radius:10px;background:#fff;padding:10px;display:block;margin:0 auto 16px;" />
+    <canvas id="qrCanvas" style="display:block;margin:0 auto 16px;border-radius:10px;"></canvas>
     <div class="qr-url" id="qrUrl" onclick="copyUrl()">Tap to copy URL</div>
     <button class="qr-close" onclick="closeQR()">Done</button>
   </div>
@@ -810,16 +810,178 @@ function backToMenu() {
   renderMenu();
 }
 
-// QR Code — uses Google Charts API (just an img tag, works when online)
+// ── Pure-JS QR Code (no external dependencies) ──────────────────
+// Uses qrcode-generator logic embedded inline
+(function(){
+  // Galois field
+  var QR_EXPTBL=[], QR_LOGTBL=[];
+  (function(){var a=1;for(var i=0;i<256;i++){QR_EXPTBL[i]=a;a<<=1;if(a&256)a^=285;a&=255;}for(var i=0;i<255;i++)QR_LOGTBL[QR_EXPTBL[i]]=i;})();
+  function gfMul(a,b){if(a===0||b===0)return 0;return QR_EXPTBL[(QR_LOGTBL[a]+QR_LOGTBL[b])%255];}
+
+  // Reed-Solomon error correction
+  function rsBlock(data, nEC){
+    var gen=[1];
+    for(var i=0;i<nEC;i++){
+      var ng=[1];
+      for(var j=0;j<gen.length;j++) ng.push(0);
+      for(var j=0;j<gen.length;j++)
+        for(var k=0;k<2;k++)
+          ng[j+(k===0?0:1)]^=gfMul(gen[j], k===0?QR_EXPTBL[i]:1);
+      gen=ng.slice(0,gen.length+1);
+      gen=gen.map(function(v,idx){return idx<gen.length-1?ng[idx]:v;});
+      // simpler: poly multiply
+    }
+    // proper poly multiply
+    gen=[1];
+    for(var i=0;i<nEC;i++){
+      var tmp=new Array(gen.length+1).fill(0);
+      for(var j=0;j<gen.length;j++){
+        tmp[j]^=gfMul(gen[j],QR_EXPTBL[i]);
+        tmp[j+1]^=gen[j];
+      }
+      gen=tmp;
+    }
+    gen.shift();
+    var d=data.slice();
+    for(var i=0;i<data.length;i++){
+      var c=d.shift();
+      if(c!==0) for(var j=0;j<gen.length;j++) d[j]^=gfMul(gen[j],c);
+    }
+    return d;
+  }
+
+  window.drawQR = function(canvasId, text, pixelSize){
+    pixelSize = pixelSize||4;
+    // Encode bytes
+    var bytes=[];
+    for(var i=0;i<text.length;i++) bytes.push(text.charCodeAt(i)&0xff);
+    var n=bytes.length;
+
+    // Choose version (1-Q supports up to 13 bytes, use version 2-M for more)
+    // Version 1: 21x21, M: 10 data + 10 ec codewords
+    // Version 2: 25x25, M: 16 data + 10 ec
+    // Version 3: 29x29, M: 26 data + 16 ec -- enough for typical URLs up to ~20 chars
+    // Version 5: 37x37, M: 36 data + 22 ec -- good for URLs up to ~30 chars
+    // Version 7: 45x45, M: 52 data + 30 ec
+    var VER, SIZE, DATA_CW, EC_CW;
+    if(n<=7){VER=1;SIZE=21;DATA_CW=10;EC_CW=10;}
+    else if(n<=14){VER=2;SIZE=25;DATA_CW=16;EC_CW=10;}
+    else if(n<=20){VER=3;SIZE=29;DATA_CW=26;EC_CW=16;}
+    else if(n<=32){VER=5;SIZE=37;DATA_CW=36;EC_CW=22;}
+    else if(n<=46){VER=7;SIZE=45;DATA_CW=52;EC_CW=30;}
+    else{VER=10;SIZE=57;DATA_CW=72;EC_CW=44;}
+
+    // Build bit stream
+    var bits=[];
+    var pb=function(v,l){for(var i=l-1;i>=0;i--)bits.push((v>>i)&1);};
+    pb(4,4); pb(n,8);
+    for(var i=0;i<n;i++) pb(bytes[i],8);
+    if(bits.length<DATA_CW*8) pb(0,Math.min(4,DATA_CW*8-bits.length));
+    while(bits.length%8) bits.push(0);
+    var pads=[236,17], pi=0;
+    while(bits.length<DATA_CW*8){for(var k=0;k<8;k++)bits.push((pads[pi%2]>>(7-k))&1);pi++;}
+
+    // To codewords
+    var cw=[];
+    for(var i=0;i<bits.length;i+=8){var b=0;for(var j=0;j<8;j++)b=(b<<1)|bits[i+j];cw.push(b);}
+
+    // EC
+    var ec=rsBlock(cw, EC_CW);
+    var all=cw.concat(ec);
+    var fbits=[];
+    for(var i=0;i<all.length;i++)for(var j=7;j>=0;j--)fbits.push((all[i]>>j)&1);
+
+    // Grid
+    var S=SIZE;
+    var grid=[], func=[];
+    for(var i=0;i<S;i++){grid[i]=new Uint8Array(S);func[i]=new Uint8Array(S);}
+
+    // Finder pattern
+    var fp=function(r,c){
+      var p=[[1,1,1,1,1,1,1],[1,0,0,0,0,0,1],[1,0,1,1,1,0,1],[1,0,1,1,1,0,1],[1,0,1,1,1,0,1],[1,0,0,0,0,0,1],[1,1,1,1,1,1,1]];
+      for(var dr=-1;dr<8;dr++)for(var dc=-1;dc<8;dc++){
+        var rr=r+dr,cc=c+dc;
+        if(rr<0||rr>=S||cc<0||cc>=S)continue;
+        func[rr][cc]=1;
+        if(dr>=0&&dr<7&&dc>=0&&dc<7)grid[rr][cc]=p[dr][dc];
+        else grid[rr][cc]=0;
+      }
+    };
+    fp(0,0);fp(0,S-7);fp(S-7,0);
+
+    // Timing
+    for(var i=8;i<S-8;i++){grid[6][i]=i%2===0?1:0;func[6][i]=1;grid[i][6]=i%2===0?1:0;func[i][6]=1;}
+
+    // Dark module
+    grid[S-8][8]=1;func[S-8][8]=1;
+
+    // Alignment (for version >= 2)
+    var ALN={2:[6,18],3:[6,22],5:[6,30],7:[6,22,38],10:[6,28,46]};
+    var apos=ALN[VER];
+    if(apos){
+      for(var ai=0;ai<apos.length;ai++)for(var aj=0;aj<apos.length;aj++){
+        var ar=apos[ai],ac=apos[aj];
+        if(func[ar][ac])continue;
+        for(var dr=-2;dr<=2;dr++)for(var dc=-2;dc<=2;dc++){
+          var rr=ar+dr,cc=ac+dc;
+          func[rr][cc]=1;
+          grid[rr][cc]=(Math.abs(dr)===2||Math.abs(dc)===2||dr===0&&dc===0)?1:0;
+        }
+      }
+    }
+
+    // Format info: mask 0, EC level M (binary: 01)
+    // format = EClevel(2bits) + mask(3bits) then BCH(10 bits), XOR 101010000010010
+    // EC M=0b01, mask=0b000 -> data=0b01000 = 8 -> BCH poly calc:
+    // Precomputed for M+mask0: 110011000101111 XOR 101010000010010 = 011001000111101
+    var FMT=[0,1,1,0,0,1,0,0,0,1,1,1,1,0,1];
+    var fmtPos1=[[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[7,8],[8,8],[8,7],[8,5],[8,4],[8,3],[8,2],[8,1],[8,0]];
+    var fmtPos2=[[S-1,8],[S-2,8],[S-3,8],[S-4,8],[S-5,8],[S-6,8],[S-7,8],[8,S-8],[8,S-7],[8,S-6],[8,S-5],[8,S-4],[8,S-3],[8,S-2],[8,S-1]];
+    for(var i=0;i<15;i++){
+      grid[fmtPos1[i][0]][fmtPos1[i][1]]=FMT[i];func[fmtPos1[i][0]][fmtPos1[i][1]]=1;
+      grid[fmtPos2[i][0]][fmtPos2[i][1]]=FMT[i];func[fmtPos2[i][0]][fmtPos2[i][1]]=1;
+    }
+
+    // Place data bits (zigzag, right to left, alternating up/down)
+    var bi=0, goUp=true, col=S-1;
+    while(col>0){
+      if(col===6)col--;
+      for(var row=0;row<S;row++){
+        var r2=goUp?S-1-row:row;
+        for(var d=0;d<2;d++){
+          var c2=col-d;
+          if(!func[r2][c2]){
+            var bit=bi<fbits.length?fbits[bi++]:0;
+            // mask 0: (row+col)%2==0
+            if((r2+c2)%2===0)bit^=1;
+            grid[r2][c2]=bit;
+          }
+        }
+      }
+      goUp=!goUp;col-=2;
+    }
+
+    // Draw on canvas
+    var cv=document.getElementById(canvasId);
+    var QUIET=4;
+    var total=(S+QUIET*2)*pixelSize;
+    cv.width=total;cv.height=total;
+    var ctx=cv.getContext('2d');
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,total,total);
+    ctx.fillStyle='#1A1410';
+    for(var r=0;r<S;r++)for(var c=0;c<S;c++)
+      if(grid[r][c])ctx.fillRect((c+QUIET)*pixelSize,(r+QUIET)*pixelSize,pixelSize,pixelSize);
+  };
+})();
+
+// QR Code
 let qrGenerated = false;
 function openQR() {
   document.getElementById("qrOverlay").classList.add("open");
   if (!qrGenerated) {
     const url = window.location.href;
     document.getElementById("qrUrl").textContent = url;
-    const encoded = encodeURIComponent(url);
-    document.getElementById("qrImg").src =
-      "https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=" + encoded + "&choe=UTF-8&chld=M|1";
+    try { drawQR("qrCanvas", url, 4); } catch(e){ console.error(e); }
     qrGenerated = true;
   }
 }
