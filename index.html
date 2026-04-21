@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>NEU Silicon Valley Café</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FAF7F2;
+    --dark: #1A1410;
+    --brown: #6B4226;
+    --gold: #C8963E;
+    --gold-light: #F5E6C8;
+    --rust: #C0471B;
+    --muted: #8C7B6B;
+    --border: rgba(107,66,38,0.15);
+    --card: #FFFFFF;
+    --success: #2D6A4F;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--dark);
+    min-height: 100vh;
+    padding-bottom: 100px;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--dark);
+    color: var(--cream);
+    padding: 20px 20px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+  .header-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  .header-sub {
+    font-size: 11px;
+    color: rgba(250,247,242,0.5);
+    margin-top: 3px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .cart-btn {
+    background: var(--gold);
+    color: var(--dark);
+    border: none;
+    border-radius: 99px;
+    padding: 8px 16px 8px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s;
+  }
+  .cart-btn:hover { background: #d9a845; }
+  .cart-badge {
+    background: var(--rust);
+    color: #fff;
+    border-radius: 99px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    font-size: 11px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── Special Banner ── */
+  .special-banner {
+    background: var(--gold-light);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid rgba(200,150,62,0.3);
+  }
+  .special-pill {
+    background: var(--gold);
+    color: var(--dark);
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 99px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .special-text {
+    font-size: 13px;
+    color: var(--brown);
+  }
+  .special-text strong { font-weight: 500; }
+
+  /* ── Category Nav ── */
+  .cat-nav {
+    background: var(--cream);
+    padding: 12px 16px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 72px;
+    z-index: 90;
+  }
+  .cat-nav::-webkit-scrollbar { display: none; }
+  .cat-pill {
+    border: 1px solid var(--border);
+    background: transparent;
+    border-radius: 99px;
+    padding: 6px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .cat-pill.active {
+    background: var(--dark);
+    border-color: var(--dark);
+    color: var(--cream);
+  }
+
+  /* ── Menu ── */
+  .menu-wrap { padding: 20px 16px 0; }
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-left: 2px;
+  }
+  .items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .item-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 12px 12px;
+    position: relative;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .item-card:not(.out-of-stock):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(107,66,38,0.12);
+  }
+  .item-card.out-of-stock { opacity: 0.5; }
+
+  .item-emoji { font-size: 30px; margin-bottom: 10px; line-height: 1; }
+  .item-name { font-size: 14px; font-weight: 500; color: var(--dark); line-height: 1.3; margin-bottom: 4px; }
+  .item-price { font-size: 13px; color: var(--muted); }
+  .item-price.is-special { color: var(--rust); }
+  .orig-price { text-decoration: line-through; color: var(--muted); font-size: 11px; margin-right: 3px; }
+
+  .item-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 99px;
+    letter-spacing: 0.04em;
+  }
+  .badge-sold { background: #F7C1C1; color: #7A2020; }
+  .badge-special { background: var(--gold-light); color: var(--brown); }
+
+  .add-btn {
+    margin-top: 12px;
+    width: 100%;
+    background: var(--gold-light);
+    color: var(--brown);
+    border: none;
+    border-radius: 8px;
+    padding: 7px 0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .add-btn:hover:not(:disabled) { background: #edd89e; }
+  .add-btn:disabled {
+    background: #f0ede8;
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    bottom: 110px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--dark);
+    color: var(--cream);
+    padding: 9px 20px;
+    border-radius: 99px;
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 400;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── Cart Panel ── */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26,20,16,0.5);
+    z-index: 200;
+    backdrop-filter: blur(2px);
+  }
+  .overlay.open { display: block; }
+
+  .cart-panel {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--cream);
+    border-radius: 20px 20px 0 0;
+    max-height: 82vh;
+    overflow-y: auto;
+    z-index: 201;
+    transform: translateY(100%);
+    transition: transform 0.28s cubic-bezier(0.32,0.72,0,1);
+  }
+  .cart-panel.open { transform: translateY(0); }
+
+  .cart-handle {
+    width: 36px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 99px;
+    margin: 12px auto 0;
+  }
+  .cart-head {
+    padding: 14px 20px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--cream);
+    z-index: 1;
+  }
+  .cart-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+  }
+  .close-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cart-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .ci-emoji { font-size: 24px; }
+  .ci-info { flex: 1; }
+  .ci-name { font-size: 14px; font-weight: 500; }
+  .ci-price { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .qty-row { display: flex; align-items: center; gap: 10px; }
+  .qty-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    width: 28px; height: 28px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--dark);
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.1s;
+  }
+  .qty-btn:hover { background: var(--gold-light); }
+  .qty-n { font-size: 14px; font-weight: 500; min-width: 16px; text-align: center; }
+
+  .cart-empty { padding: 40px 20px; text-align: center; color: var(--muted); }
+  .cart-empty-icon { font-size: 36px; margin-bottom: 10px; }
+
+  .cart-foot {
+    padding: 16px 20px 24px;
+    border-top: 1px solid var(--border);
+    position: sticky;
+    bottom: 0;
+    background: var(--cream);
+  }
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 14px;
+  }
+  .total-label { font-size: 14px; color: var(--muted); }
+  .total-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    color: var(--dark);
+  }
+  .checkout-btn {
+    width: 100%;
+    background: var(--dark);
+    color: var(--cream);
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: background 0.15s;
+  }
+  .checkout-btn:hover { background: var(--brown); }
+
+  /* ── Success Screen ── */
+  .success-screen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--cream);
+    z-index: 300;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    text-align: center;
+  }
+  .success-screen.show { display: flex; }
+  .success-ring {
+    width: 80px; height: 80px;
+    background: #D8F0E5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin-bottom: 20px;
+  }
+  .success-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+  .success-order {
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .success-items {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 20px;
+    width: 100%;
+    max-width: 340px;
+    margin-bottom: 20px;
+  }
+  .success-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    padding: 4px 0;
+    color: var(--dark);
+  }
+  .success-total-line {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 10px;
+    margin-top: 6px;
+    border-top: 1px solid var(--border);
+    font-weight: 500;
+    font-size: 15px;
+  }
+  .pickup-note {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+  .back-btn {
+    background: var(--gold-light);
+    color: var(--brown);
+    border: none;
+    border-radius: 12px;
+    padding: 14px 32px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  /* ── QR Modal ── */
+  .qr-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26,20,16,0.6);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+  }
+  .qr-modal-overlay.open { display: flex; }
+  .qr-modal {
+    background: var(--cream);
+    border-radius: 20px;
+    padding: 28px 24px;
+    max-width: 320px;
+    width: 90%;
+    text-align: center;
+  }
+  .qr-modal h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    margin-bottom: 6px;
+  }
+  .qr-modal p {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+  #qrCanvas {
+    border-radius: 10px;
+    background: #fff;
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+  .qr-url {
+    font-size: 11px;
+    color: var(--muted);
+    word-break: break-all;
+    background: var(--gold-light);
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    cursor: pointer;
+    user-select: all;
+  }
+  .qr-close {
+    background: var(--dark);
+    color: var(--cream);
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    width: 100%;
+  }
+  .qr-fab {
+    position: fixed;
+    bottom: 24px;
+    right: 20px;
+    background: var(--dark);
+    color: var(--cream);
+    border: none;
+    border-radius: 99px;
+    padding: 10px 18px 10px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 16px rgba(26,20,16,0.25);
+    z-index: 150;
+    transition: transform 0.15s;
+  }
+  .qr-fab:hover { transform: translateY(-2px); }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="header-name">NEU Silicon Valley Café</div>
+      <div class="header-sub">Scan · Order · Pick up at counter</div>
+    </div>
+    <button class="cart-btn" onclick="openCart()">
+      <span>🛒</span>
+      <span id="cartCount" class="cart-badge">0</span>
+    </button>
+  </div>
+</div>
+
+<!-- Special Banner -->
+<div class="special-banner" id="specialBanner">
+  <span class="special-pill">Today's special</span>
+  <span class="special-text"><strong id="specialName">—</strong> · 20% off today only</span>
+</div>
+
+<!-- Category Nav -->
+<div class="cat-nav" id="catNav"></div>
+
+<!-- Menu -->
+<div class="menu-wrap" id="menuWrap"></div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- QR FAB -->
+<button class="qr-fab" onclick="openQR()">
+  <span style="font-size:16px;">⬡</span> Share QR
+</button>
+
+<!-- Cart Overlay + Panel -->
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+<div class="cart-panel" id="cartPanel">
+  <div class="cart-handle"></div>
+  <div class="cart-head">
+    <span class="cart-title">Your order</span>
+    <button class="close-btn" onclick="closeCart()">✕</button>
+  </div>
+  <div id="cartBody"></div>
+  <div class="cart-foot" id="cartFoot" style="display:none">
+    <div class="total-row">
+      <span class="total-label">Total</span>
+      <span class="total-num" id="cartTotal">$0.00</span>
+    </div>
+    <button class="checkout-btn" onclick="checkout()">Place order →</button>
+  </div>
+</div>
+
+<!-- Success Screen -->
+<div class="success-screen" id="successScreen">
+  <div class="success-ring">✓</div>
+  <div class="success-title">Order placed!</div>
+  <div class="success-order" id="orderNum">Order #000</div>
+  <div class="success-items" id="successItems"></div>
+  <div class="pickup-note">Please show this screen at the counter.<br>Your order will be ready shortly.</div>
+  <button class="back-btn" onclick="backToMenu()">Order again</button>
+</div>
+
+<!-- QR Modal -->
+<div class="qr-modal-overlay" id="qrOverlay">
+  <div class="qr-modal">
+    <h2>Share this menu</h2>
+    <p>Customers scan this QR code to open the ordering page. Host this file online to make it work.</p>
+    <canvas id="qrCanvas" width="200" height="200"></canvas>
+    <div class="qr-url" id="qrUrl" onclick="copyUrl()">Tap to copy URL</div>
+    <button class="qr-close" onclick="closeQR()">Done</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const MENU = [
+  { name:"Latte",        price:4.50, category:"Drink",     emoji:"☕" },
+  { name:"Espresso",     price:3.00, category:"Drink",     emoji:"☕" },
+  { name:"Green Tea",    price:3.50, category:"Drink",     emoji:"🍵" },
+  { name:"Orange Juice", price:4.00, category:"Drink",     emoji:"🍊" },
+  { name:"Croissant",    price:3.25, category:"Food",      emoji:"🥐" },
+  { name:"Bagel",        price:2.75, category:"Food",      emoji:"🥯" },
+  { name:"Sandwich",     price:6.50, category:"Food",      emoji:"🥪" },
+  { name:"Muffin",       price:3.25, category:"Dessert",   emoji:"🧁" },
+  { name:"Brownie",      price:3.00, category:"Dessert",   emoji:"🍫" },
+  { name:"Cookie",       price:2.50, category:"Dessert",   emoji:"🍪" },
+  { name:"Chips",        price:2.00, category:"Grab & Go", emoji:"🍟" },
+  { name:"Popcorn",      price:2.50, category:"Grab & Go", emoji:"🍿" },
+  { name:"Granola Bar",  price:2.00, category:"Grab & Go", emoji:"🌾" },
+  { name:"Coke",         price:2.00, category:"Grab & Go", emoji:"🥤" },
+  { name:"Bottled Water",price:1.50, category:"Grab & Go", emoji:"💧" },
+];
+
+const INIT_STOCK = {
+  "Latte":5,"Espresso":10,"Green Tea":8,"Orange Juice":6,
+  "Croissant":4,"Bagel":7,"Muffin":1,"Sandwich":0,
+  "Brownie":6,"Cookie":8,"Chips":10,"Popcorn":9,
+  "Granola Bar":12,"Coke":7,"Bottled Water":15
+};
+
+let stock = {...INIT_STOCK};
+let cart = {};
+let special = MENU[Math.floor(Math.random() * MENU.length)];
+let currentCat = "All";
+const cats = ["All", ...new Set(MENU.map(i => i.category))];
+
+document.getElementById("specialName").textContent = special.name;
+
+// Build category nav
+const catNav = document.getElementById("catNav");
+cats.forEach(c => {
+  const btn = document.createElement("button");
+  btn.className = "cat-pill" + (c === "All" ? " active" : "");
+  btn.textContent = c;
+  btn.onclick = () => {
+    currentCat = c;
+    document.querySelectorAll(".cat-pill").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    renderMenu();
+  };
+  catNav.appendChild(btn);
+});
+
+function renderMenu() {
+  const wrap = document.getElementById("menuWrap");
+  wrap.innerHTML = "";
+  const sections = currentCat === "All" ? [...new Set(MENU.map(i => i.category))] : [currentCat];
+
+  sections.forEach(cat => {
+    const items = MENU.filter(i => i.category === cat);
+    const label = document.createElement("div");
+    label.className = "section-label";
+    label.textContent = cat;
+    wrap.appendChild(label);
+
+    const grid = document.createElement("div");
+    grid.className = "items-grid";
+
+    items.forEach(item => {
+      const inStock = (stock[item.name] || 0) > 0;
+      const isSpec = item.name === special.name;
+      const dispPrice = isSpec ? item.price * 0.8 : item.price;
+
+      const card = document.createElement("div");
+      card.className = "item-card" + (!inStock ? " out-of-stock" : "");
+      card.innerHTML = `
+        ${!inStock ? '<span class="item-badge badge-sold">Sold out</span>' : isSpec ? '<span class="item-badge badge-special">20% off</span>' : ''}
+        <div class="item-emoji">${item.emoji}</div>
+        <div class="item-name">${item.name}</div>
+        <div class="item-price${isSpec ? ' is-special' : ''}">
+          ${isSpec ? `<span class="orig-price">$${item.price.toFixed(2)}</span>` : ''}
+          $${dispPrice.toFixed(2)}
+        </div>
+        <button class="add-btn" ${!inStock ? 'disabled' : ''} onclick="addToCart('${item.name}')">
+          ${inStock ? '+ Add to order' : 'Unavailable'}
+        </button>
+      `;
+      grid.appendChild(card);
+    });
+
+    wrap.appendChild(grid);
+  });
+}
+
+function addToCart(name) {
+  if ((stock[name] || 0) <= 0) return;
+  cart[name] = (cart[name] || 0) + 1;
+  stock[name]--;
+  updateBadge();
+  renderMenu();
+  showToast("Added: " + name);
+}
+
+function updateBadge() {
+  const n = Object.values(cart).reduce((a,b) => a+b, 0);
+  document.getElementById("cartCount").textContent = n;
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 1800);
+}
+
+function openCart() {
+  document.getElementById("overlay").classList.add("open");
+  document.getElementById("cartPanel").classList.add("open");
+  renderCart();
+}
+function closeCart() {
+  document.getElementById("overlay").classList.remove("open");
+  document.getElementById("cartPanel").classList.remove("open");
+}
+
+function renderCart() {
+  const body = document.getElementById("cartBody");
+  const foot = document.getElementById("cartFoot");
+  body.innerHTML = "";
+
+  const keys = Object.keys(cart).filter(k => cart[k] > 0);
+  if (!keys.length) {
+    body.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛒</div>Your cart is empty</div>`;
+    foot.style.display = "none";
+    return;
+  }
+
+  let total = 0;
+  keys.forEach(name => {
+    const item = MENU.find(i => i.name === name);
+    const qty = cart[name];
+    const isSpec = name === special.name;
+    const up = isSpec ? item.price * 0.8 : item.price;
+    const sub = up * qty;
+    total += sub;
+
+    const row = document.createElement("div");
+    row.className = "cart-item";
+    row.innerHTML = `
+      <span class="ci-emoji">${item.emoji}</span>
+      <div class="ci-info">
+        <div class="ci-name">${name}${isSpec ? ' <span style="font-size:10px;background:#F5E6C8;color:#6B4226;padding:1px 6px;border-radius:99px;">20% off</span>' : ''}</div>
+        <div class="ci-price">$${up.toFixed(2)} · subtotal $${sub.toFixed(2)}</div>
+      </div>
+      <div class="qty-row">
+        <button class="qty-btn" onclick="adjustQty('${name}',-1)">−</button>
+        <span class="qty-n">${qty}</span>
+        <button class="qty-btn" onclick="adjustQty('${name}',1)">+</button>
+      </div>
+    `;
+    body.appendChild(row);
+  });
+
+  document.getElementById("cartTotal").textContent = "$" + total.toFixed(2);
+  foot.style.display = "block";
+}
+
+function adjustQty(name, d) {
+  if (d > 0) {
+    if ((stock[name] || 0) <= 0) { showToast("No more stock!"); return; }
+    cart[name]++; stock[name]--;
+  } else {
+    if (!cart[name]) return;
+    cart[name]--; stock[name]++;
+    if (cart[name] === 0) delete cart[name];
+  }
+  updateBadge();
+  renderCart();
+  renderMenu();
+}
+
+function checkout() {
+  const keys = Object.keys(cart).filter(k => cart[k] > 0);
+  if (!keys.length) return;
+
+  let total = 0;
+  let linesHtml = "";
+  keys.forEach(name => {
+    const item = MENU.find(i => i.name === name);
+    const qty = cart[name];
+    const isSpec = name === special.name;
+    const up = isSpec ? item.price * 0.8 : item.price;
+    const sub = up * qty;
+    total += sub;
+    linesHtml += `<div class="success-line"><span>${item.emoji} ${name} × ${qty}</span><span>$${sub.toFixed(2)}</span></div>`;
+  });
+  linesHtml += `<div class="success-total-line"><span>Total</span><span>$${total.toFixed(2)}</span></div>`;
+
+  const num = Math.floor(Math.random() * 900) + 100;
+  document.getElementById("orderNum").textContent = "Order #" + num;
+  document.getElementById("successItems").innerHTML = linesHtml;
+
+  cart = {};
+  updateBadge();
+  closeCart();
+  document.getElementById("successScreen").classList.add("show");
+}
+
+function backToMenu() {
+  document.getElementById("successScreen").classList.remove("show");
+  renderMenu();
+}
+
+// QR Code
+let qrGenerated = false;
+function openQR() {
+  document.getElementById("qrOverlay").classList.add("open");
+  if (!qrGenerated) {
+    const url = window.location.href;
+    document.getElementById("qrUrl").textContent = url;
+    try {
+      new QRCode(document.getElementById("qrCanvas"), {
+        text: url,
+        width: 200,
+        height: 200,
+        colorDark: "#1A1410",
+        colorLight: "#FFFFFF",
+        correctLevel: QRCode.CorrectLevel.M
+      });
+      qrGenerated = true;
+    } catch(e) {
+      const ctx = document.getElementById("qrCanvas").getContext("2d");
+      ctx.fillStyle = "#f0ede8";
+      ctx.fillRect(0,0,200,200);
+      ctx.fillStyle = "#6B4226";
+      ctx.font = "13px DM Sans, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Deploy online to generate", 100, 90);
+      ctx.fillText("a scannable QR code", 100, 110);
+    }
+  }
+}
+function closeQR() {
+  document.getElementById("qrOverlay").classList.remove("open");
+}
+function copyUrl() {
+  const url = window.location.href;
+  navigator.clipboard.writeText(url).then(() => showToast("URL copied!")).catch(() => showToast("Copy: " + url));
+}
+
+renderMenu();
+</script>
+</body>
+</html>
